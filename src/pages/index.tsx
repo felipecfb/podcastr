@@ -1,4 +1,8 @@
 import { GetStaticProps } from "next";
+import { api } from "../services/api";
+
+import { format, parseISO } from "date-fns";
+import ptBR from 'date-fns/locale/pt-BR';
 
 type Episode = {
   episodes: Array<{
@@ -10,8 +14,7 @@ type Episode = {
     descriptipn: string;
     file: {
       url: string;
-      type: string;
-      duration: string;
+      duration: number;
     };
   }>;
 };
@@ -21,24 +24,31 @@ interface Episodes {
 }
 
 export default function Home(episodes: Episodes) {
-  console.log(episodes);
 
   return <div>{JSON.stringify(episodes)}</div>;
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const response = await fetch(
-    "http://localhost:3333/episodes?_limit=12&_sort=published_at&_order=desc"
-  );
-  const data = await response.json();
-
-  const episodes = data.map((episode: Episode) => {
-    return {
-      ...episode,
-    };
+  const { data } = await api.get("episodes", {
+    params: {
+      _limit: 12,
+      _sort: "published_at",
+      _order: "desc",
+    },
   });
 
-  console.log(episodes);
+  const episodes = data.map(episode => {
+    return {
+      id: episode.id,
+      title: episode.title,
+      thumbnail: episode.thumbnail,
+      members: episode.members,
+      publishedAt: format(parseISO(episode.published_at), 'd MMM yy', { locale: ptBR }),
+      duration: Number(episode.file.duration),
+      description: episode.description,
+      url: episode.file.url,
+    }
+  })
 
   return {
     props: {
