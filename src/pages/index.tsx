@@ -2,30 +2,64 @@ import { GetStaticProps } from "next";
 import { api } from "../services/api";
 
 import { format, parseISO } from "date-fns";
-import ptBR from 'date-fns/locale/pt-BR';
+import ptBR from "date-fns/locale/pt-BR";
+import { convertDurationToTimeString } from "../utils/convertDurationToTimeString";
+
+import styles from "./home.module.scss";
+import Image from "next/image";
 
 type Episode = {
-  episodes: Array<{
-    id: string;
-    title: string;
-    members: string;
-    published_at: string;
-    thumbnail: string;
-    descriptipn: string;
-    file: {
-      url: string;
-      duration: number;
-    };
-  }>;
+  id: string;
+  title: string;
+  members: string;
+  thumbnail: string;
+  duration: number;
+  durationAsString: string;
+  description: string;
+  url: string;
+  publishedAt: string;
 };
 
-interface Episodes {
-  episodes: Episode[];
+interface HomeProps {
+  latestEpisodes: Episode[];
+  allEpisodes: Episode[];
 }
 
-export default function Home(episodes: Episodes) {
+export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
+  return (
+    <div className={styles.homepage}>
+      <section className={styles.latestEpisodes}>
+        <h2>Últimos lançamentos</h2>
 
-  return <div>{JSON.stringify(episodes)}</div>;
+        <ul>
+          {latestEpisodes.map((episode) => {
+            return (
+              <li key={episode.id}>
+                <Image
+                  width={192}
+                  height={192}
+                  src={episode.thumbnail}
+                  alt={episode.title}
+                  objectFit="cover"
+                />
+
+                <div className={styles.episodeDetails}>
+                  <a href="">{episode.title}</a>
+                  <p>{episode.members}</p>
+                  <span>{episode.publishedAt}</span>
+                  <span>{episode.durationAsString}</span>
+                </div>
+
+                <button type="button">
+                  <img src="/play-green.svg" alt="Tocar episódio" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </div>
+  );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
@@ -37,22 +71,31 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   });
 
-  const episodes = data.map(episode => {
+  const episodes = data.map((episode) => {
     return {
       id: episode.id,
       title: episode.title,
       thumbnail: episode.thumbnail,
       members: episode.members,
-      publishedAt: format(parseISO(episode.published_at), 'd MMM yy', { locale: ptBR }),
+      publishedAt: format(parseISO(episode.published_at), "d MMM yy", {
+        locale: ptBR,
+      }),
       duration: Number(episode.file.duration),
+      durationAsString: convertDurationToTimeString(
+        Number(episode.file.duration)
+      ),
       description: episode.description,
       url: episode.file.url,
-    }
-  })
+    };
+  });
+
+  const latestEpisodes = episodes.slice(0, 2);
+  const allEpisodes = episodes.slice(2, episodes.lenght);
 
   return {
     props: {
-      episodes: data,
+      latestEpisodes,
+      allEpisodes,
     },
     revalidate: 60 * 60 * 8,
   };
