@@ -8,8 +8,7 @@ import { convertDurationToTimeString } from "../utils/convertDurationToTimeStrin
 import styles from "./home.module.scss";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext } from "react";
-import { PlayerContext } from "../contexts/PlayerContext";
+import { usePlayer } from "../contexts/PlayerContext";
 
 type Episode = {
   id: string;
@@ -27,7 +26,7 @@ type EpisodeFormatted = {
   id: string;
   title: string;
   members: string;
-  thumbnail: string; 
+  thumbnail: string;
   duration: number;
   durationAsString: string;
   url: string;
@@ -40,8 +39,7 @@ interface HomeProps {
 }
 
 export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
-  const { playList } = useContext(PlayerContext);
-
+  const { playList } = usePlayer();
   const episodeList = [...latestEpisodes, ...allEpisodes];
 
   return (
@@ -70,7 +68,10 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                   <span>{episode.durationAsString}</span>
                 </div>
 
-                <button type="button" onClick={() => playList(episodeList, index)}>
+                <button
+                  type="button"
+                  onClick={() => playList(episodeList, index)}
+                >
                   <img src="/play-green.svg" alt="Tocar episódio" />
                 </button>
               </li>
@@ -115,7 +116,12 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                   <td style={{ width: 100 }}>{episode.publishedAt}</td>
                   <td>{episode.durationAsString}</td>
                   <td>
-                    <button type="button" onClick={() => playList(episodeList, index + latestEpisodes.length)}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        playList(episodeList, index + latestEpisodes.length)
+                      }
+                    >
                       <img src="/play-green.svg" alt="Tocar episódio" />
                     </button>
                   </td>
