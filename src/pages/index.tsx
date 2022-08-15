@@ -14,6 +14,18 @@ import { PlayerContext } from "../contexts/PlayerContext";
 type Episode = {
   id: string;
   title: string;
+  thumbnail: string;
+  members: string;
+  published_at: string;
+  file: {
+    duration: number;
+    url: string;
+  };
+};
+
+type EpisodeFormatted = {
+  id: string;
+  title: string;
   members: string;
   thumbnail: string;
   duration: number;
@@ -23,8 +35,8 @@ type Episode = {
 };
 
 interface HomeProps {
-  latestEpisodes: Episode[];
-  allEpisodes: Episode[];
+  latestEpisodes: EpisodeFormatted[];
+  allEpisodes: EpisodeFormatted[];
 }
 
 export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
@@ -56,7 +68,7 @@ export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
                   <span>{episode.durationAsString}</span>
                 </div>
 
-                <button type="button">
+                <button type="button" onClick={() => play(episode)}>
                   <img src="/play-green.svg" alt="Tocar episódio" />
                 </button>
               </li>
@@ -124,7 +136,7 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   });
 
-  const episodes = data.map((episode) => {
+  const episodes = data.map((episode: Episode) => {
     return {
       id: episode.id,
       title: episode.title,
