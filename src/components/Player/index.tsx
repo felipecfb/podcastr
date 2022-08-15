@@ -26,6 +26,7 @@ export function Player() {
     playPrevious,
     hasNext,
     hasPrevious,
+    clearPlayerState,
   } = usePlayer();
 
   useEffect(() => {
@@ -43,8 +44,8 @@ export function Player() {
   function setupProgressListener() {
     audioRef.current.currentTime = 0;
 
-    audioRef.current?.addEventListener('timeupdate', event => {
-      setProgress(Math.floor(audioRef.current.currentTime))
+    audioRef.current?.addEventListener("timeupdate", (event) => {
+      setProgress(Math.floor(audioRef.current.currentTime));
     });
   }
 
@@ -55,6 +56,14 @@ export function Player() {
   function handleSeek(amount: number) {
     audioRef.current.currentTime = amount;
     setProgress(amount);
+  }
+
+  function handleEpisodeEnded() {
+    if (hasNext) {
+      playNext();
+    } else {
+      clearPlayerState();
+    }
   }
 
   const episode = episodeList[currentEpisodeIndex];
@@ -107,6 +116,7 @@ export function Player() {
           <audio
             src={episode.url}
             autoPlay
+            onEnded={handleEpisodeEnded}
             loop={isLooping}
             ref={audioRef}
             onPlay={() => setPlayingState(true)}
@@ -120,7 +130,7 @@ export function Player() {
             type="button"
             disabled={!episode || episodeList.length === 1}
             onClick={toggleShuffle}
-            className={isShuffling ? styles.active : ""}
+            className={isShuffling ? styles.isActive : ""}
           >
             <img src="/shuffle.svg" alt="Embaralhar" />
           </button>
