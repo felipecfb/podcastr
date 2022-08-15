@@ -16,8 +16,8 @@ export function Player() {
     isPlaying,
     isLooping,
     isShuffling,
-    tooglePlay,
-    toogleLoop,
+    togglePlay,
+    toggleLoop,
     toggleShuffle,
     setPlayingState,
     playNext,
@@ -112,7 +112,7 @@ export function Player() {
             className={styles.playButton}
             type="button"
             disabled={!episode}
-            onClick={tooglePlay}
+            onClick={togglePlay}
           >
             {isPlaying ? (
               <img src="/pause.svg" alt="Pausar" />
@@ -130,7 +130,7 @@ export function Player() {
           <button
             type="button"
             disabled={!episode}
-            onClick={toogleLoop}
+            onClick={toggleLoop}
             className={isLooping ? styles.isActive : ""}
           >
             <img src="/repeat.svg" alt="Repetir" />
